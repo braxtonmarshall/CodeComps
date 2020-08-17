@@ -1,11 +1,3 @@
-
-/*
-*   Authors:
-*   Braxton Marshall
-*   Hannah Holloway
-*   CS350
-*/
-
 package edu.odu.cs.cs350;
 
 import java.io.BufferedReader;
