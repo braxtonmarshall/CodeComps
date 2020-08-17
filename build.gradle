@@ -1,0 +1,132 @@
+/*
+ * Build File
+ * 
+ */
+buildscript {
+	repositories {
+		jcenter()
+		//ivy {
+			//url 'https://secweb.cs.odu.edu/~zeil/ivyrepo'
+		//}
+		maven {
+      		url "http://xbib.org/repository"
+    	}
+	}
+	dependencies {
+		classpath 'org.xbib.gradle.plugin:gradle-plugin-jflex:1.1.0'
+		//classpath 'org.hidetake:gradle-ssh-plugin:2.7.0+'
+		//classpath 'edu.odu.cs.zeil:report_accumulator:1.2'
+		classpath "org.jbake:jbake-gradle-plugin:5.0.0"
+		classpath "com.github.fracpete:rsync4j-all:3.1.2-15"
+		}
+}
+
+// Plugins
+apply plugin: 'org.xbib.gradle.plugin.jflex'
+apply plugin: 'java'
+apply plugin: 'ivy-publish'
+apply plugin: 'org.jbake.site'
+apply plugin: 'project-report'
+apply plugin: 'checkstyle'
+//apply plugin: 'org.hidetake.ssh'
+apply plugin: 'jacoco'
+//import edu.odu.cs.zeil.report_accumulator.ReportStats
+//import edu.odu.cs.zeil.report_accumulator.ReportsDeploy
+
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+dependencies {
+	 	compile 'de.jflex:jflex:1.6.1'
+     	compile 'org.xbib.gradle.plugin:gradle-plugin-jflex:1.1.0'
+		compile 'org.apache.poi:poi:3.7+'
+		compile 'org.apache.poi:poi-ooxml:3.17'
+		compile 'org.hidetake:gradle-ssh-plugin:2.7.0+'
+    testCompile "junit:junit:4.12"
+}
+
+// Create Executable Jar
+jar {
+	manifest {
+		attributes 'Main-Class' : 'edu.odu.cs.cs350.CodeComp'
+		}
+}
+// Jar Repositories
+repositories {
+    jcenter()
+    mavenCentral()
+}
+// Jar Dependencies
+dependencies {
+	 	compile 'de.jflex:jflex:1.6.1'
+     	compile 'org.xbib.gradle.plugin:gradle-plugin-jflex:1.1.0'
+		compile 'org.apache.poi:poi:3.7+'
+		compile 'org.apache.poi:poi-ooxml:3.17'
+		compile 'org.hidetake:gradle-ssh-plugin:2.7.0+'
+    testCompile "junit:junit:4.12"
+}
+// REPORTING
+// JAVADOC
+javadoc {  
+	failOnError false                
+   	options.with {
+       links 'https://docs.oracle.com/javase/8/docs/api/', 'gradle/javadocs/jdk'
+       }
+}
+build.dependsOn javadoc
+
+checkstyle {
+	ignoreFailures = true
+	showViolations = false
+}
+
+tasks.withType(Checkstyle) {
+	reports {
+	html.destination project.file("build/reports/checkstyle/main.html")
+	}
+}
+
+test.ignoreFailures = true
+checkstyleTest.enabled = false
+check.dependsOn jacocoTestReport
+check.dependsOn htmlDependencyReport
+
+// REPORTS
+task reports (dependsOn: ['htmlDependencyReport', 'javadoc', 'check']) {
+	description 'Generate all reports for this project'
+}
+// COLLECT STATISTICS
+//task collectStats (type: ReportStats, dependsOn: ['build','reports']) {
+//    description "Collect statistics from various reports & analysis tools"
+//    reportsURL = 'https://www.cs.odu.edu/~bmarsh/cs350/Blue4'
+//}
+// COPY JDOCS
+task copyJDocs (type: Copy) {
+	from 'build/docs'
+	into 'build/tmp/website/assets'
+	dependsOn 'javadoc'
+}
+// JBAKE SETUP
+jbake {
+		srcDirName = "src/jbake/"
+}
+
+task copyBake (type: Copy) {
+	from 'build/jbake'
+	into 'build/reports'
+	dependsOn 'bake'
+}
+// BUILD WEBSITE
+task site (dependsOn: ['copyBake', 'copyJDocs', 'collectStats']){
+	description "Build the website"
+}
+// DEPLOY TO WEBSITE
+//task deployReports (type: ReportsDeploy, dependsOn: 'site') {
+//    description 'Deploy website to remote server'
+//    deployDestination = 'rsync://bmarsh@atria.cs.odu.edu:./'
+//}
+
+
+
