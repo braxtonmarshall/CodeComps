@@ -1,131 +1,178 @@
-package edu.odu.cs.cs350;
+package edu.odu.cs.cs350.Interface;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.Vector;
+import java.util.ArrayList;
 
-public class Student {
+/**
+* <pre>
+* <b> Student Class </b>
+* This is a sub-interface that captures the role and attributes of the students.
+* A student has unique identification and his or her assignment submissions.
+* </pre>
+*/
+     
+public class Student implements Comparable<Student> , Cloneable
+{
 	
-	// Name of Student Object
-	private String name;
+	// The unique identification is the submission directory
+	private String submissionid;
 	
-    // List of Source File locations found in the Directory
-    private Vector<File> fileList;
-    
-    // Lines of Code found within the Student Directory based on the directory's Source Files
-    private int lines_of_code;
+    // List of source files found in the submission directory
+    private ArrayList<Submission> filelist;
 
-    // Version of the Student Directory
-    // Note: In cases where the Student Directory has no version, the version number will be set to -1
-    private int version;
-    
-    // Root Directory for Student
-    private File rootDirectory;
+    // Priority Submission
+    private Submission priosubmission;
 
     /**
     *   Default Student Constructor
     */ 
     public Student()
     {
-        name = "";
-        fileList = new Vector<File>();
-        lines_of_code = 0;
-        version = -1;
+        submissionid = "";
+        filelist = new ArrayList<Submission>();
+        priosubmission = null;
     }
 
     /**
     *   Student Constructor
+    *   @param s <b> String </b> Submission Directory Name
     */
-    public Student(String name)
+    public Student(String s)
     {
-        this.name = name;
-        fileList = new Vector<File>();
-        this.lines_of_code = 0;
-        this.version = -1;
+        this.submissionid = s;
+        filelist = new ArrayList<Submission>();
+        priosubmission = null;
+    }
+
+    /**
+    *   Copy Constructor
+    *   @param object <b> Student </b> Student Object to copy
+    */
+    @SuppressWarnings("unchecked")
+	public Student ( Student object )
+    {
+        this.submissionid = new String(object.submissionid);
+        this.filelist = ((ArrayList<Submission>) object.filelist.clone());
     }
 
     /**
      * @return the name of the Student
      */
     public String getName() {
-        return name;
+        return submissionid;
     }
 
     /**
      * @param name the name to set
      */
     public void setName(String name) {
-        this.name = name;
+        this.submissionid = name;
     }
 
     /**
-    *   @return Total Lines of Code for Student
+    *   Add submissions to ArrayList of submissions for student
+    *   @param directory <b> File </b> The submitted directory
     */
-    public int getLinesofCode()
+    public void addSubmission ( File directory )
     {
-        return lines_of_code;
+        filelist.add(new Submission(directory));
+        updatePrioritySubmission();
     }
 
     /**
-    *   @param code Set the total Lines of Code for Student
+    *   <pre>
+    *   Search Student's ArrayList of submissions for specific submission
+    *   </pre>
+    *   @param name <b> String </b> Submission to search for
+    *   @return <b> Submission </b> Submission object found
     */
-    public void setLinesofCode(int code)
+    public Submission getSubmission( String name )
     {
-        this.lines_of_code = code;
+        for(int i=0; i<filelist.size();i++)
+        {
+            if (filelist.get(i).toString().equals(name))
+            {
+                return filelist.get(i);
+            }
+        }
+
+        // If not found, return null
+        return null;
     }
 
     /**
-    *   @return Version Number of this Student Directory
+    *   Returns priority submission for this student
+    *   @return <b> Submission </b> Priority Submission
     */
-    public int getVersion()
+    public Submission getPrioritySubmission()
     {
-        return version;
+        return priosubmission;
     }
 
-    /**
-    *   @param v the version of the Student Directory
+    /*
+    *   Parses student object's arraylist for priority submission, and then sets the prioritysubmission attribute
     */
-    public void setVersion(int v)
+    public void updatePrioritySubmission()
     {
-        this.version = v;
+        // Sort submissions based on index numbers at the end of string
+        filelist.sort(null);
+
+        // Submissions with no version number always get priority
+        for (int i=0; i < filelist.size(); i++)
+        {
+            if (filelist.get(i).toString().lastIndexOf('.') == -1 )
+            {
+                priosubmission = filelist.get(i);
+            }
+        }
+
+        priosubmission = filelist.get(filelist.size() - 1);
     }
 
     /**
-    *   @return the Root Directory of this Student
+    *   Returns total number of submissions in student's directory
+    *   @return <b> int </b> Total number of submissions.
     */
-    public File getRoot()
+    public int getTotalSubmissions()
     {
-        return rootDirectory;
+        return filelist.size();
     }
 
     /**
-    *   @param f the Root Directory to be set
+    *   Returns the total amount of files in the priority submission for the student
+    *   @return <b> int </b> Total number of files in priority submission directory.
     */
-    public void setRoot(File f)
+    public int getTotalFileCount()
     {
-        this.rootDirectory = f;
-    }
-    /**
-     * @return the fileList
-     */
-
-    public Vector<File> getFileList() 
-    {
-        return fileList;
+        return getPrioritySubmission().getTotalSrcFiles();
     }
 
     /**
-    *  @param file File to be added to the list of Files
-    *       - Ignores file if already contained in the list
+    *   Returns the total amount of lines of code within the files contained in the priority
+    *   submission directory.
+    *   @return <b> int </b> Total LOC of files in priority submission directory.
     */
-    public void appendFile(File file)
-    {      
-        // If file is already in fileList, do nothing
-        if (this.fileList.contains(file)){}
-
-        else{ this.fileList.add(file); }
+    public int getTotalLineCount()
+    {
+        return getPrioritySubmission().getTotalLOC();
     }
     
+    /*
+     * 
+     */
+    public StringBuilder getTokenStream()
+    {
+    	return getPrioritySubmission().getTokenStream();
+    }
+    
+    /*
+     * 
+     */
+    public int getTokenStreamLength()
+    {
+    	return getTokenStream().length();
+    }
     /**
     *   @return hashCode value for this Student
     */
@@ -133,42 +180,70 @@ public class Student {
     public int hashCode() {
 
        int result = 17;
-       result = 31 * result + ((name!=null) ? name.hashCode() : 0);
+       result = 31 * result + ((submissionid!=null) ? submissionid.hashCode() : 0);
        return result;
     }
 
     /**
-    *   Compares two Students for equality. Students are considered
-    *   equal if they have the same name.
+    *   Override equals() method. Compares two Students for equality.
     *
     *   @param obj - object to be compared
-    *   @return true if the object is equal to this object
-    *
+    *   @return <b> boolean </b> Return true if the objects are equal
     */
     @Override
-    public boolean equals(Object obj)   {
+    public boolean equals(Object obj)   
+    {
 
-        // If Object compared to itself - return True
-        if (obj == this) {
+        if (obj == null) 
+        {
+            return false;
+        }
+
+        if (!(obj instanceof Student)) 
+        {
+            return false;
+        }
+
+        if (this == obj) 
+        {
             return true;
         }
         
-        // If Object is not of type Student - return False
-        if (!(obj instanceof Student)) {
-            return false;
-        }
         
         Student student = (Student) obj;
-        return (Objects.equals(name, student.name));
+        return (Objects.equals(submissionid, student.submissionid));
 
     }
+
     /**
-    *   Prints the Student Directory
-    */
+     *  Override comparison for default sorting mechanism when applied to a collection
+     *  of student objects.
+     *  @param stu <b> Student </b> Student object being compared
+     *  @return <b> int </b> value based on comparison result
+     */
+    @Override
+    public int compareTo(Student stu)
+    {
+        return this.submissionid.compareTo(stu.submissionid);
+    }
+
+    /**
+     *   Prints the Student Name
+     */
     @Override
     public String toString()
     {
-        return ( this.name + " " + "Files: " + this.fileList.size() + " LOC: " + this.lines_of_code );
+        return submissionid;
+    }
+
+    /**
+    *   Override clone() method
+    * @return <b> Object </b> A deep copy of student object
+    */
+    @Override
+    public Object clone()
+    {
+        return new Student(this);
     }
 
 }

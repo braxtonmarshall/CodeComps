@@ -1,186 +1,230 @@
 package edu.odu.cs.cs350;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.*;
+import java.io.File;
+import edu.odu.cs.cs350.Interface.*;
+import org.junit.Test;
 
-
-public class TestStudent {
-
-	String testName = "a name";
-	int defaultLinesofCode = 0;
-	int testLinesofCode = 100;
-	int defaultVersion = -1;
-	int testVersion = 99;
-	Vector<File> blankFileList = new Vector<File>();
-	File root = new File("root");
-	Student blankStudent = new Student();
+public class TestStudent
+{
+	private Teacher teacher;
+	private File submissionDir;
+	private Student Bob;
+	private Student Jimbob;
+	private Student Alice;
 	
-	@Rule
-	public TemporaryFolder testFolder = new TemporaryFolder();
-	
-	
-	
- 	/**
-   	* @throws java.lang.Exception
-   	*/
-  	@Before
-  	public void setUp() throws Exception {
-  	
-  	}
-
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#Student()}
-	*/
-	@Test
-	public final void testStudent() {
-		Student student = new Student();
-		assertEquals("", student.getName());
-		assertEquals(null, student.getRoot());
-		assertEquals(blankFileList, student.getFileList());
-		assertEquals(defaultLinesofCode, student.getLinesofCode());
-		assertEquals(defaultVersion, student.getVersion());
-		assertEquals(student, blankStudent);
-		assertEquals(student.toString(), blankStudent.toString());
-	}
-
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#Student(java.lang.String)}
-	*/
-	@Test
-	public final void testStudentString() {
-		Student student = new Student(testName);
-		assertEquals(testName, student.getName());
-		assertEquals(null, student.getRoot());
-		assertEquals(blankFileList, student.getFileList());
-		assertEquals(defaultLinesofCode, student.getLinesofCode());
-		assertEquals(defaultVersion, student.getVersion());
-		assertNotEquals(student, blankStudent);
-		assertNotEquals(student.hashCode(), blankStudent.hashCode());
-		String studentoutput = student.toString();
-		assertTrue(studentoutput.contains(testName));
-		assertTrue(studentoutput.contains("0"));
-	}
-
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#setName(java.lang.String)}
-	*/
-	@Test
-	public final void testsetName()	{
-		Student student = new Student(testName);
-		student.setName("a new name");
-		assertEquals("a new name", student.getName());
-		assertEquals(null, student.getRoot());
-		assertEquals(blankFileList, student.getFileList());
-		assertEquals(defaultLinesofCode, student.getLinesofCode());
-		assertEquals(defaultVersion, student.getVersion());
-		assertNotEquals(student, blankStudent);
-		assertNotEquals(student.hashCode(), blankStudent.hashCode());
-		String studentoutput = student.toString();
-		assertTrue(studentoutput.contains("0"));
-		assertTrue(studentoutput.contains("a new name"));
+	public TestStudent()
+	{
+		teacher = new Teacher("ostream");
+		
+		submissionDir = new File("./src/test/data/submissionsTest");
+		teacher.acceptStudentSubmission(submissionDir);
+		
+		Alice = teacher.getStudent("Alice");
+		Bob = teacher.getStudent("Bob");
+		Jimbob = teacher.getStudent("Jimbob");
+		
 	}
 	
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#setRoot(java.io.File)}
-	*/
 	@Test
-	public final void testsetRoot()	{
-		Student student = new Student(testName);
-		student.setRoot(root);
-		assertEquals("a name", student.getName());
-		assertNotEquals(null, student.getRoot());
-		assertEquals(root, student.getRoot());
-		assertEquals(blankFileList, student.getFileList());
-		assertEquals(defaultLinesofCode, student.getLinesofCode());
-		assertEquals(defaultVersion, student.getVersion());
-		assertNotEquals(student, blankStudent);
-		assertNotEquals(student.hashCode(), blankStudent.hashCode());
-		String studentoutput = student.toString();
-		assertTrue(studentoutput.contains("0"));
-		assertTrue(studentoutput.contains("a name"));
-	}
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#setLinesofCode(java.lang.Integer)}
-	*/
-	@Test
-	public final void testsetLinesofCode()	{
-		Student student = new Student(testName);
-		student.setLinesofCode(testLinesofCode);
-		assertEquals(testLinesofCode, student.getLinesofCode());
-		assertEquals(defaultVersion, student.getVersion());
-		assertEquals(testName, student.getName());
-		assertEquals(null, student.getRoot());
-		assertEquals(blankFileList, student.getFileList());
-		assertNotEquals(student, blankStudent);
-		assertNotEquals(student.hashCode(), blankStudent.hashCode());
-		String studentoutput = student.toString();
-		assertTrue(studentoutput.contains("0"));
-		assertTrue(studentoutput.contains("100"));
-		assertTrue(studentoutput.contains(testName));
-	}
-
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#setVersion(java.lang.Integer)}
-	*/
-	@Test
-	public final void testsetVersion()	{
-		Student student = new Student(testName);
-		student.setVersion(testVersion);
-		assertEquals(testVersion, student.getVersion());
-		assertEquals(testName, student.getName());
-		assertEquals(null, student.getRoot());
-		assertEquals(blankFileList, student.getFileList());
-		assertEquals(defaultLinesofCode, student.getLinesofCode());
-		assertNotEquals(student, blankStudent);
-		assertNotEquals(student.hashCode(), blankStudent.hashCode());
-		String studentoutput = student.toString();
-		assertTrue(studentoutput.contains("0"));
-		assertTrue(studentoutput.contains(testName));
+	public void testStudent()
+	{
+		assertEquals( "Alice" , Alice.toString() );
+		assertTrue( Alice.equals(Alice) );
+		assertFalse( Alice.equals(Bob) );
+		assertFalse( Alice.equals(Jimbob) );
+		assertEquals( 1 , Alice.getTotalSubmissions() );
+		assertEquals( "Alice.1" , Alice.getPrioritySubmission().toString() );
+		assertEquals( 2 , Alice.getTotalFileCount() );
+		assertEquals( 13 , Alice.getTotalLineCount() );
+				
+		assertEquals( "Bob" , Bob.toString() );
+		assertTrue( Bob.equals(Bob) );
+		assertFalse( Bob.equals(Alice) );
+		assertFalse( Bob.equals(Jimbob) );
+		assertEquals( 2 , Bob.getTotalSubmissions() );
+		assertEquals( "Bob" , Bob.getPrioritySubmission().toString() );
+		assertEquals( 2 , Bob.getTotalFileCount() );
+		assertEquals( 56 , Bob.getTotalLineCount() );
+				
+		assertEquals( "Jimbob" , Jimbob.toString() );
+		assertTrue( Jimbob.equals(Jimbob) );
+		assertFalse( Jimbob.equals(Alice) );
+		assertFalse( Jimbob.equals(Bob) );
+		assertEquals( 3 , Jimbob.getTotalSubmissions() );
+		assertEquals( "Jimbob" , Jimbob.getPrioritySubmission().toString() );
+		assertEquals( 2 , Jimbob.getTotalFileCount() );
+		assertEquals( 171 , Jimbob.getTotalLineCount() );
+				
 	}
 	
-	/**
-	*	Test Method for {@link edu.odu.cs.cs350.Student#appendFile(java.io.File)}
-	 * @throws IOException 
-	*/
 	@Test
-	public final void testappendFile() throws IOException	{
-		Student student = new Student(testName);
-		assertEquals(blankFileList, student.getFileList());
-		assertEquals(testName, student.getName());
-		assertEquals(null, student.getRoot());
-		assertEquals(defaultLinesofCode, student.getLinesofCode());
-  		File testFileone = testFolder.newFile("testone.txt");
-  		File testFiletwo = testFolder.newFile("testtwo.txt");
-		student.appendFile(testFileone);
-		assertEquals(1, student.getFileList().size());
-		student.appendFile(testFileone);
-		assertEquals(1, student.getFileList().size());
-		student.appendFile(testFiletwo);
-		assertEquals(2, student.getFileList().size());
-
-		assertNotEquals(student, blankStudent);
-		assertNotEquals(student.hashCode(), blankStudent.hashCode());
-		assertNotEquals(student.getFileList(), blankStudent.getFileList());
-
-		Student student0 = new Student(testName);
-		assertEquals(student0.hashCode(), student.hashCode());
-
-		String studentoutput = student.toString();
-		assertTrue(studentoutput.contains("0"));
-		assertTrue(studentoutput.contains("2"));
-		assertTrue(studentoutput.contains(testName));
-
+	public void testStudentStudent() 
+	{
+		Student clonedAlice = new Student( Alice );
+		assertEquals( clonedAlice , Alice);
+		
+		// Make sure that they aren't referring to same object
+		assertNotSame( clonedAlice, Alice );
+		
+		// Verify that two objects have the same state
+		assertEquals( clonedAlice.toString() , Alice.toString() );
+		assertEquals( clonedAlice.getTotalSubmissions() , Alice.getTotalSubmissions() );
+		assertEquals( clonedAlice.getPrioritySubmission() , Alice.getPrioritySubmission() );
+		assertEquals( clonedAlice.getTotalFileCount() , Alice.getTotalFileCount() );
+		assertEquals( clonedAlice.getTotalLineCount() , Alice.getTotalLineCount() );
+		assertTrue( clonedAlice.equals(Alice) );
 	}
 
+	@Test
+	public void testAddSubmission() 
+	{
+		assertEquals( "Alice" , Alice.toString() );
+		assertTrue( Alice.equals(Alice) );
+		assertFalse( Alice.equals(Bob) );
+		assertFalse( Alice.equals(Jimbob) );
+		assertEquals( 1 , Alice.getTotalSubmissions() );
+		assertEquals( "Alice.1" , Alice.getPrioritySubmission().toString() );
+		assertEquals( 1 , Alice.getTotalFileCount() );
+		assertEquals( 13 , Alice.getTotalLineCount() );
+		
+		assertEquals( "Bob" , Bob.toString() );
+		assertTrue( Bob.equals(Bob) );
+		assertFalse( Bob.equals(Alice) );
+		assertFalse( Bob.equals(Jimbob) );
+		assertEquals( 2 , Bob.getTotalSubmissions() );
+		assertEquals( "Bob" , Bob.getPrioritySubmission().toString() );
+		assertEquals( 2 , Bob.getTotalFileCount() );
+		assertEquals( 56 , Bob.getTotalLineCount() );
+		
+		assertEquals( "Jimbob" , Jimbob.toString() );
+		assertTrue( Jimbob.equals(Jimbob) );
+		assertFalse( Jimbob.equals(Alice) );
+		assertFalse( Jimbob.equals(Bob) );
+		assertEquals( 3 , Jimbob.getTotalSubmissions() );
+		assertEquals( "Jimbob" , Jimbob.getPrioritySubmission().toString() );
+		assertEquals( 2 , Jimbob.getTotalFileCount() );
+		assertEquals( 171 , Jimbob.getTotalLineCount() );
+	}
+	
+	@Test
+	public void testGetSubmission() 
+	{
+		assertEquals( null , Alice.getSubmission("ThisDoesNotExist") );
+		assertEquals( null , Bob.getSubmission("ThisDoesNotExist") );
+		assertEquals( null , Jimbob.getSubmission("ThisDoesNotExist") );
+		
+		assertEquals( Alice.getPrioritySubmission() , Alice.getSubmission("Asa.1") );
+		assertEquals( Bob.getPrioritySubmission() , Bob.getSubmission("Bob") );
+		assertEquals( Jimbob.getPrioritySubmission() , Jimbob.getSubmission("Jimbob") );
+	}
+	
+	@Test
+	public void testGetSubmissionCount() 
+	{
+		assertEquals( 1 , Alice.getTotalSubmissions() );
+		assertEquals( 2 , Bob.getTotalSubmissions() );
+		assertEquals( 3 , Jimbob.getTotalSubmissions() );
+	}
+	
+	@Test
+	public void testGetPrioritySubmission() 
+	{
+		assertEquals( "Alice.1" , Alice.getPrioritySubmission().toString() );
+		assertEquals( "Bob" , Bob.getPrioritySubmission().toString() );
+		assertEquals( "Jimbob" , Jimbob.getPrioritySubmission().toString() );
+	}
+	
+	@Test
+	public void testGetTotalCodeFileCount() 
+	{
+		assertEquals( 1 , Alice.getTotalFileCount() );
+		assertEquals( 2 , Bob.getTotalFileCount() );
+		assertEquals( 2 , Jimbob.getTotalFileCount() );	
+	}
+	
+	@Test
+	public void testGetTotalCodeLineCount() 
+	{
+		assertEquals( 13 , Alice.getTotalLineCount() );
+		assertEquals( 56 , Bob.getTotalLineCount());
+		assertEquals( 171 , Jimbob.getTotalLineCount());
+	}
+	
+	@Test
+	public void testGetTokenSequence() 
+	{
+		// Parse the codes
+		teacher.parseSubmissionDirectory();
+		
+		StringBuilder aliceSeq = Alice.getTokenStream();
+		StringBuilder bobSeq = Bob.getTokenStream();
+		StringBuilder jimbobSeq = Jimbob.getTokenStream();
+
+		assertTrue( 0 < aliceSeq.length() );
+		assertTrue( 0 < bobSeq.length() );
+		assertTrue( 0 < jimbobSeq.length() );
+	}
+	
+	@Test
+	public void testEqualsObject() 
+	{
+
+		assertTrue( Alice.equals(Alice) );
+		assertFalse( Alice.equals(Bob) );
+		assertFalse( Alice.equals(Jimbob) );
+		
+		assertTrue( Bob.equals(Bob) );
+		assertFalse( Bob.equals(Alice) );
+		assertFalse( Bob.equals(Jimbob) );
+		
+		assertTrue( Jimbob.equals(Jimbob) );
+		assertFalse( Jimbob.equals(Alice) );
+		assertFalse( Jimbob.equals(Bob) );
+	}
+
+	@Test
+	public void testCompareTo() 
+	{
+		assertTrue( Alice.compareTo(Alice) == 0 );
+		assertTrue( Alice.compareTo(Bob) < 0 );
+		assertTrue( Alice.compareTo(Jimbob) < 0 );
+		
+		assertTrue( Bob.compareTo(Alice) > 0 );
+		assertTrue( Bob.compareTo(Bob) == 0 );
+		assertTrue( Bob.compareTo(Jimbob) < 0 );
+		
+		assertTrue( Jimbob.compareTo(Alice) > 0 );
+		assertTrue( Jimbob.compareTo(Bob) > 0 );
+		assertTrue( Jimbob.compareTo(Jimbob) == 0 );
+	}
+
+	@Test
+	public void testToString() 
+	{
+		assertEquals( "Alice" , Alice.toString() );
+
+		assertEquals( "Bob" , Bob.toString() );
+		
+		assertEquals( "Jimbob" , Jimbob.toString() );	
+	}
+
+	@Test
+	public void testClone() 
+	{
+		Student clonedJimbob = (Student) Jimbob.clone();
+		assertEquals( clonedJimbob , Jimbob);
+		
+		// Make sure that they aren't referring to same object (Ensure that object has been deep-copied)
+		assertNotSame( clonedJimbob , Jimbob );
+		
+		// Verify that two objects have the same state
+		assertEquals( clonedJimbob.toString() , Jimbob.toString() );
+		assertEquals( clonedJimbob.getTotalSubmissions() , Jimbob.getTotalSubmissions() );
+		assertEquals( clonedJimbob.getPrioritySubmission() , Jimbob.getPrioritySubmission() );
+		assertEquals( clonedJimbob.getTotalFileCount() , Jimbob.getTotalFileCount() );
+		assertEquals( clonedJimbob.getTotalLineCount() , Jimbob.getTotalLineCount() );
+		assertTrue( clonedJimbob.equals(Jimbob) );
+	}
+	
 }
-
-
-    
-
-
